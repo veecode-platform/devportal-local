@@ -1,0 +1,24 @@
+# M4.5 marketplace/extensions installation config. Delivered to the main
+# container via extraAppConfig. Paths point at the shared /m3data volume — the
+# same DEVPORTAL_DB_PATH the pre-step writes to, and the CATALOG_ENTITIES_EXTRACT_DIR
+# the installer extracts into.
+extensions:
+  installation:
+    enabled: true
+    saveToSingleFile:
+      # Backend live-writes here on every install-UI action; the pre-step
+      # regenerates the SAME file from Postgres before the installer on each
+      # install-step re-run — the criterion-7 restart-survival path.
+      file: /m3data/extensions-install.yaml
+  # Extraction lands at $CATALOG_ENTITIES_EXTRACT_DIR/catalog-entities/{packages,plugins,collections}.
+  directory: /m3data/catalog-entities-extract/catalog-entities
+
+# tech-radar-backend (used as the criterion-7 restart-persistence probe plugin,
+# seeded into marketplace_installations) requires techRadar.url at startup —
+# a normal per-plugin app-config concern. Without it the backend fails startup
+# (BackendStartupError) and the pod never becomes Ready. Supplying it lets the
+# persisted plugin start clean, so criteria 2 (Ready) and 7 (persistence) hold
+# together on the same pod. Placeholder URL: presence satisfies startup; the
+# radar simply renders empty until pointed at a real data file.
+techRadar:
+  url: https://raw.githubusercontent.com/backstage/backstage/master/plugins/tech-radar/src/sampleData.ts

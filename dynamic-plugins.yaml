@@ -1,0 +1,85 @@
+includes:
+  - /m3data/extensions-install.yaml
+
+plugins:
+  - package: ./dynamic-plugins/dist/red-hat-developer-hub-backstage-plugin-extensions
+    # Disabled for the criterion-2 UI-swap re-test: running this AND the 2.x
+    # devportal-marketplace-frontend-dynamic together put two extensions UIs
+    # (both exposing DynamicExtensionsPluginRouter) in one module-federation
+    # scope, which is the likelier explanation for the blank #root seen in
+    # the first attempt (shared-singleton collision) than a genuine 2.x/1.49.4
+    # incompatibility. Isolating the 2.x frontend below to get a clean signal.
+    disabled: true
+    # Package ships no static routes (New Frontend System "callback"
+    # registration) — without this pluginConfig block the plugin loads but
+    # nothing is reachable in the UI. Cribbed verbatim from RHDH's
+    # dynamic-plugins.default.yaml (1.10--0.17.1).
+    pluginConfig:
+      dynamicPlugins:
+        frontend:
+          red-hat-developer-hub.backstage-plugin-extensions:
+            translationResources:
+              - importName: extensionsTranslations
+                ref: extensionsTranslationRef
+                module: Alpha
+            appIcons:
+              - name: pluginsIcon
+                importName: PluginsIcon
+            dynamicRoutes:
+              - path: /extensions
+                importName: DynamicExtensionsPluginRouter
+                menuItem:
+                  icon: pluginsIcon
+                  text: Extensions
+                  textKey: menuItem.extensions
+            menuItems:
+              extensions:
+                parent: default.admin
+  - package: ./dynamic-plugins/dist/red-hat-developer-hub-backstage-plugin-catalog-backend-module-extensions-dynamic
+    disabled: false
+  # RHDH's own extensions-backend-dynamic is intentionally NOT enabled here —
+  # it shares pluginId "extensions" with devportal-marketplace-backend below
+  # and the two would conflict on /api/extensions/* route registration (Q8).
+  - package: oci://quay.io/veecode/marketplace:bs_1.53.0!devportal-marketplace-backend
+    disabled: false
+  - package: oci://quay.io/veecode/marketplace:bs_1.53.0!devportal-pending-changes-dynamic
+    disabled: false
+    pluginConfig:
+      dynamicPlugins:
+        frontend:
+          devportal.pending-changes:
+            mountPoints:
+              - mountPoint: global.header/component
+                importName: PendingChangesButton
+                config:
+                  priority: 55
+                  props:
+                    pollingIntervalMs: 30000
+  # 2.x's own marketplace frontend (paired with devportal-marketplace-backend
+  # in ADR-014, where install-via-UI is proven to work) — added alongside
+  # (not instead of) the RHDH 0.17.1 "Extensions" frontend above, at a
+  # different route (/marketplace vs /extensions), to test whether it speaks
+  # our backend's API dialect where the 0.17.1 wrapper's Install button
+  # reads as disabled (M3.md risk table item 3). bs_1.49.4 tag used per
+  # M3.md line 35: this is the tag where the frontend selector genuinely
+  # differs from bs_1.53.0/bs_1.54.0-next.0 (only the backend was
+  # byte-identical across tags).
+  - package: oci://quay.io/veecode/marketplace:bs_1.49.4!devportal-marketplace-frontend-dynamic
+    disabled: false
+    pluginConfig:
+      dynamicPlugins:
+        frontend:
+          devportal.marketplace-frontend:
+            appIcons:
+              - name: pluginsIcon
+                importName: PluginsIcon
+            dynamicRoutes:
+              - path: /marketplace
+                importName: DynamicExtensionsPluginRouter
+                menuItem:
+                  icon: pluginsIcon
+                  text: Marketplace
+            menuItems:
+              marketplace:
+                title: Marketplace
+                icon: pluginsIcon

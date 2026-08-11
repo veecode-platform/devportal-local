@@ -1,0 +1,20 @@
+name: Config drift
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "17 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-config-drift:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out devportal-local
+        uses: actions/checkout@v4
+      - name: Check derived config against the pinned chart
+        run: sh scripts/check-config-drift.sh
