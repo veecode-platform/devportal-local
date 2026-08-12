@@ -75,6 +75,7 @@ services:
       - ./config/app-config.veecode-auth.yaml:/opt/app-root/src/app-config.veecode-auth.yaml:ro
       - ./config/app-config.veecode-branding.yaml:/opt/app-root/src/app-config.veecode-branding.yaml:ro
       - ./config/app-config.extensions.yaml:/opt/app-root/src/app-config.extensions.yaml:ro
+      - ./config/app-config.veecode-product.yaml:/opt/app-root/src/app-config.veecode-product.yaml:ro
     # The image's own ENTRYPOINT remains active. Compose's command field is
     # only the Docker CMD/argument suffix, equivalent to the chart's `args`;
     # it appends the generated config and the three mounted fragments.
@@ -87,6 +88,11 @@ services:
       - app-config.veecode-branding.yaml
       - --config
       - app-config.extensions.yaml
+      # LAST on purpose: the product fragment overrides the earlier ones (theme,
+      # branding width, Tech Radar URL, sidebar search, help/support). Same
+      # ordering the chart uses in extraAppConfig.
+      - --config
+      - app-config.veecode-product.yaml
     ports:
       - "${DEVPORTAL_PORT:-7007}:7007"
 

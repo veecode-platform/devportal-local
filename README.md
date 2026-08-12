@@ -10,6 +10,27 @@ docker compose up
 
 Open [http://localhost:7007](http://localhost:7007). To change the published UI port or the local PostgreSQL password, copy `.env.example` to `.env` before starting. PostgreSQL is part of the default stack because the marketplace installation state is stored there.
 
+## What you get
+
+This runner tracks the published chart, so `docker compose up` gives you the same product face a Kubernetes install gives you — currently chart **`devportal 0.1.3`** (see `.chart-pin`) on image `3.0.0-beta.1`:
+
+- the VeeCode sidebar — Home, Catalog, APIs, Docs, Self-service, Notifications, Tech Radar, Marketplace;
+- TechDocs, Notifications/Signals and Tech Radar wired up;
+- VeeCode branding and RHDH-native theming (light and dark);
+- the marketplace, with installs that survive a restart.
+
+### Files derived from the chart
+
+The chart repo is the single source of truth for configuration; this repo vendors from it and CI enforces that with `scripts/check-config-drift.sh` (run it yourself any time — it needs `git` and network access):
+
+| File | Nature |
+| --- | --- |
+| `config/app-config.veecode-auth.yaml`, `-branding`, `app-config.extensions.yaml` | verbatim copies of raw chart files — **byte-compared** against the pinned tag |
+| `config/app-config.veecode-product.yaml` | the chart stores this as a Helm **template**, so this is the **rendered** result — checked for presence, not byte equality |
+| `dynamic-plugins.yaml` | the chart's own rendered plugin ConfigMap, so the harness installs exactly the chart's plugin set |
+
+Both derived files carry a `DERIVED FILE — do not hand-edit` header. When `.chart-pin` moves, re-render them rather than patching by hand.
+
 ## Guest access warning
 
 The default `config/app-config.veecode-auth.yaml` fragment enables guest sign-in and maps every guest to the `admin` user, with administrator ownership. This is useful for a fresh evaluation, but anyone who can reach the URL can act as an administrator; do not expose this setup to real users or untrusted networks. To turn guest-admin access off locally, remove the auth fragment bind mount and its matching `--config app-config.veecode-auth.yaml` argument from the `devportal` service in `docker-compose.yml`, then configure a real provider such as GitLab or GitHub OAuth.

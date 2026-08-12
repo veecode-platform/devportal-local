@@ -1,0 +1,94 @@
+# DERIVED FILE — do not hand-edit.
+#
+# Rendered from the chart's Helm template
+# charts/backstage/files/veecode/app-config.veecode-product.yaml at the tag in
+# ../.chart-pin, with the chart's own global.veecode.* defaults applied.
+#
+# Unlike the other three fragments in this directory (which are byte-identical
+# copies of raw chart files and are byte-compared by scripts/check-config-drift.sh),
+# this one is Helm-templated at source, so a byte comparison is impossible — the
+# drift check verifies the template still exists upstream instead. Re-render it
+# whenever .chart-pin moves:
+#
+#   helm template x <chart> | yq '...ConfigMap veecode-product...'
+#
+# VeeCode product identity — chart 0.1.1 (M4.7 decision round).
+#
+# Rendered through Helm `tpl` (see templates/veecode-configmaps.yaml), so every
+# value below is driven by `global.veecode.*` in values.yaml. This fragment is
+# loaded LAST in the backend --config chain (extraAppConfig), so it OVERRIDES
+# earlier fragments — that is how branding title/width and the Tech Radar URL
+# become per-deployment values without editing the baked branding file.
+app:
+  title: "VeeCode DevPortal"
+  # Sidebar Search is a SHELL-level toggle: the 3.x app-shell reads
+  # app.sidebar.search (Root.tsx, default true) to decide whether to render the
+  # SidebarSearchModal item. VeeCode 2.x has no Search item in the sidebar — the
+  # header already carries the Search component — so turn it off to match 2.x.
+  # No image change needed; the lever lives in config.
+  sidebar:
+    search: false
+  branding:
+    fullLogoWidth: 180
+    # RHDH-native theming (M4.7 ROOT fix). The 3.x app-shell reads the
+    # palette.rhdh.general.* contract (pageInset, sidebar colors, appBar scheme).
+    # `variant: rhdh` loads RHDH's FULL theme incl. those layout tokens, so the
+    # sidebar/content layout math resolves — fixing the sidebar<->content gap,
+    # the Administration-expand shift, and the full-height green loader. We
+    # override only the VeeCode palette. This replaces the OCI veecode-theme
+    # plugin (disabled in values.yaml global.dynamic.plugins).
+    theme:
+      light:
+        variant: rhdh
+        mode: light
+        palette:
+          primary: { main: '#00857a' }
+          secondary: { main: '#5a3fc0' }
+          navigation:
+            background: '#1b1f23'
+            indicator: '#00b39b'
+            color: '#d8d8d8'
+            selectedColor: '#ffffff'
+          rhdh:
+            general:
+              sidebarBackgroundColor: '#1b1f23'
+              sidebarItemSelectedBackgroundColor: '#00857a'
+      dark:
+        variant: rhdh
+        mode: dark
+        palette:
+          primary: { main: '#00857a' }
+          secondary: { main: '#8b6fe0' }
+          navigation:
+            background: '#1b1f23'
+            indicator: '#00b39b'
+            color: '#d8d8d8'
+            selectedColor: '#ffffff'
+          rhdh:
+            general:
+              sidebarBackgroundColor: '#1b1f23'
+              sidebarItemSelectedBackgroundColor: '#00857a'
+  # Help/Support dropdown destinations (M4.7 ruling 2 — VeeCode, not upstream).
+  support:
+    url: "https://github.com/veecode-platform/support/discussions"
+    items:
+      - title: "VeeCode DevPortal support"
+        icon: github
+        links:
+          - url: "https://github.com/veecode-platform/support/discussions"
+            title: GitHub Issues
+
+# TechDocs — local build/serve/publish contract (parity with 2.x
+# app-config.yaml:116-122). Enables the /docs surface backed by the techdocs
+# dynamic plugins added in values.yaml global.dynamic.plugins.
+techdocs:
+  builder: local
+  generator:
+    runIn: local
+  publisher:
+    type: local
+
+# Tech Radar data source — the real VeeCode endpoint (2.x app-config.yaml:172-179),
+# overriding the placeholder sample URL carried by app-config.extensions.yaml.
+techRadar:
+  url: https://platform.vee.codes/techradar.json
