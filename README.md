@@ -18,8 +18,8 @@ The default `config/app-config.veecode-auth.yaml` fragment enables guest sign-in
 
 1. Browse [http://localhost:7007/marketplace](http://localhost:7007/marketplace) after the catalog finishes loading.
 2. Open a plugin and choose **Install**. Confirm the restart-required prompt.
-3. Restart the backend with `docker compose restart devportal`.
-4. The plugin remains available after the restart: the shared plugin volume keeps the installed files and PostgreSQL carries the marketplace selection. For a full cold-cycle check, run `docker compose down` without `-v`, then `docker compose up`; the pre-step rebuilds the installer YAML from PostgreSQL before the installer runs.
+3. Restart the stack with `docker compose down` (no `-v` — keep the volumes) followed by `docker compose up -d`. A plain `docker compose restart devportal` is NOT enough for a new install: the install one-shot must re-run so the plugin's files are actually installed.
+4. Refresh the browser and sign in as guest again. The plugin is installed and active: PostgreSQL carried the marketplace selection across the cycle, the pre-step rebuilt the installer YAML from it, and the installer reinstalled the plugin with no UI action.
 
 On a brand-new database, the first pre-step may warn that the marketplace schema does not exist yet. The initial backend boot creates it; later install-step runs use PostgreSQL normally.
 
