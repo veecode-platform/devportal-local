@@ -1,5 +1,15 @@
 name: devportal-local
 
+# GATED (OD1 phase A, 2026-08-19): the image digest pinned below
+# (3.0.0-beta.1) predates devportal-core's feat/od1-baked-face branch — it
+# has no dynamic-plugins.veecode.yaml and no fail-closed backstop, so
+# dynamic-plugins.yaml's `includes:` face pointer (see that file) is
+# currently a silent no-op against this digest, not a boot failure: the old
+# installer warns "File ... does not exist, skipping" and installs from
+# `plugins:` alone — which is now `[]`. Net effect until the digest is
+# bumped: this compose installs ZERO plugins, not "face minus marketplace".
+# Bump the digest to an image built after that branch merges before relying
+# on this harness to show the product face.
 services:
   postgres:
     image: postgres:16
