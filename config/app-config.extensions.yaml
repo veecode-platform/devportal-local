@@ -1,5 +1,5 @@
 # M4.5 marketplace/extensions installation config. Delivered to the main
-# container via extraAppConfig. Paths point at the shared /m3data volume — the
+# container via extraAppConfig. Paths point at the shared /devportal-data volume — the
 # same DEVPORTAL_DB_PATH the pre-step writes to, and the CATALOG_ENTITIES_EXTRACT_DIR
 # the installer extracts into.
 extensions:
@@ -9,9 +9,9 @@ extensions:
       # Backend live-writes here on every install-UI action; the pre-step
       # regenerates the SAME file from Postgres before the installer on each
       # install-step re-run — the criterion-7 restart-survival path.
-      file: /m3data/extensions-install.yaml
+      file: /devportal-data/extensions-install.yaml
   # Extraction lands at $CATALOG_ENTITIES_EXTRACT_DIR/catalog-entities/{packages,plugins,collections}.
-  directory: /m3data/catalog-entities-extract/catalog-entities
+  directory: /devportal-data/catalog-entities-extract/catalog-entities
 
 # tech-radar-backend (used as the criterion-7 restart-persistence probe plugin,
 # seeded into marketplace_installations) requires techRadar.url at startup —
