@@ -1,6 +1,6 @@
 name: devportal-local
 
-# Image 3.0.0-beta.2 (OD1): bakes the product face (dynamic-plugins.veecode.yaml)
+# Image 3.0.0-beta.4 (OD1): bakes the product face (dynamic-plugins.veecode.yaml)
 # + installer fail-closed/backstop; the includes face pointer below is live.
 services:
   postgres:
@@ -20,8 +20,8 @@ services:
   # Docker creates named volumes as root-owned when their mount path is absent
   # from the image. The installer runs as UID 1001, so fix ownership first.
   fix-volume-ownership:
-    # DevPortal 3.0.0-beta.2; pinned by digest for reproducible evaluation.
-    image: docker.io/veecode/devportal@sha256:a20a3a7145aec337d27771a8e83c27f75ac065623116b37ba3a7a41449e8ad38
+    # DevPortal 3.0.0-beta.4; pinned by digest for reproducible evaluation.
+    image: docker.io/veecode/devportal@sha256:66e50570ee1d60929391d60756838fcb4cff1597d73c7979a8bef8dcaf0129b3
     user: "0"
     entrypoint: ["/bin/sh", "-c", "chown -R 1001:0 /opt/app-root/src/dynamic-plugins-root /devportal-data"]
     volumes:
@@ -29,8 +29,8 @@ services:
       - devportal-data:/devportal-data
 
   install-dynamic-plugins:
-    # DevPortal 3.0.0-beta.2; pinned by digest for reproducible evaluation.
-    image: docker.io/veecode/devportal@sha256:a20a3a7145aec337d27771a8e83c27f75ac065623116b37ba3a7a41449e8ad38
+    # DevPortal 3.0.0-beta.4; pinned by digest for reproducible evaluation.
+    image: docker.io/veecode/devportal@sha256:66e50570ee1d60929391d60756838fcb4cff1597d73c7979a8bef8dcaf0129b3
     depends_on:
       fix-volume-ownership:
         condition: service_completed_successfully
@@ -59,8 +59,8 @@ services:
       - ./dynamic-plugins.yaml:/opt/app-root/src/dynamic-plugins.yaml:ro
 
   devportal:
-    # DevPortal 3.0.0-beta.2; pinned by digest for reproducible evaluation.
-    image: docker.io/veecode/devportal@sha256:a20a3a7145aec337d27771a8e83c27f75ac065623116b37ba3a7a41449e8ad38
+    # DevPortal 3.0.0-beta.4; pinned by digest for reproducible evaluation.
+    image: docker.io/veecode/devportal@sha256:66e50570ee1d60929391d60756838fcb4cff1597d73c7979a8bef8dcaf0129b3
     depends_on:
       install-dynamic-plugins:
         condition: service_completed_successfully
