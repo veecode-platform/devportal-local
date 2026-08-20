@@ -46,7 +46,7 @@ services:
         --config app-config.example.production.yaml
         && sh install-dynamic-plugins.sh /opt/app-root/src/dynamic-plugins-root
     environment:
-      CATALOG_INDEX_IMAGE: quay.io/veecode/plugin-catalog-index@sha256:62da454a987e26c0d664bf4d4af27db7300b49cf499ecc6489a1531f9b08417f
+      CATALOG_INDEX_IMAGE: quay.io/veecode/plugin-catalog-index@sha256:0560b5a1ad60e6f953047bb456d1aa3a319f1241d79e5be16e0420dd45db022f
       CATALOG_ENTITIES_EXTRACT_DIR: /devportal-data/catalog-entities-extract
       DEVPORTAL_DB_PATH: /devportal-data
       POSTGRES_HOST: postgres
