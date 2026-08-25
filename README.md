@@ -12,7 +12,7 @@ Open [http://localhost:7007](http://localhost:7007). To change the published UI 
 
 ## What you get
 
-This runner tracks the published chart, so `docker compose up` gives you the same product face a Kubernetes install gives you — currently chart **`devportal 0.1.3`** (see `.chart-pin`) on image `3.0.0-beta.1`:
+This runner tracks the published chart, so `docker compose up` gives you the same product face a Kubernetes install gives you — currently chart **`devportal 0.1.21`** (see `.chart-pin`) on image `3.0.0-beta.7`:
 
 - the VeeCode sidebar — Home, Catalog, APIs, Docs, Self-service, Notifications, Tech Radar, Marketplace;
 - TechDocs, Notifications/Signals and Tech Radar wired up;

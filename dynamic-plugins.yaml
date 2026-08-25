@@ -5,14 +5,22 @@
 # compose harness installs exactly what the chart installs. Re-render it
 # whenever .chart-pin moves.
 #
-# Since chart-v0.1.10 (OD1 phase A), the VeeCode product face (Home, header,
-# TechDocs, Notifications, Tech Radar, Marketplace, theme — 20 plugins) is no
-# longer inline here under `plugins:`. It moved into an image-baked includes
-# file, dynamic-plugins.veecode.yaml, referenced below ahead of the
-# marketplace write-through file — global.dynamic.plugins is now purely
-# additive customer input, and stays empty by default. See
+# Since chart-v0.1.20 this file is the OPERATOR config: the compose mounts it
+# at /opt/app-root/src/dynamic-plugins.operator.yaml and merge-dynamic-plugins.js
+# merges it with the marketplace write-through (extensions-install.yaml, now a
+# LEVEL-1 entry, no longer an include here) into the level-1 dynamic-plugins.yaml
+# the installer actually reads.
+#
+# Includes, in order:
+# - dynamic-plugins.default.yaml — relative include; the installer swaps in the
+#   catalog-index DPDY (CATALOG_INDEX_IMAGE) when an include's basename matches
+#   this exact literal filename.
+# - dynamic-plugins.veecode.yaml — the VeeCode product face (Home, header,
+#   TechDocs, Notifications, Tech Radar, Marketplace, theme — 20 plugins),
+#   baked into the devportal-core image (OD1 phase A), fail-closed if missing.
+# `plugins:` stays purely additive customer input, empty by default. See
 # devportal-chart/docs/product-face-overrides.md.
 includes:
+- dynamic-plugins.default.yaml
 - /opt/app-root/src/dynamic-plugins.veecode.yaml
-- /devportal-data/extensions-install.yaml
 plugins: []
