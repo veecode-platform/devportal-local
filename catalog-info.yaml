@@ -1,0 +1,24 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: devportal-local
+  description: >-
+    Run the VeeCode DevPortal locally with docker compose. Independent
+    implementation — RHDH Local was evaluated and explicitly REJECTED as a
+    base (ADR-001): neither a fork nor a wrapper. Derives its config from
+    devportal-chart (.chart-pin + manual procedure, 5 derived files) and
+    consumes images from quay.io/veecode.
+  annotations:
+    github.com/project-slug: veecode-platform/devportal-local
+  tags: [docker-compose, local]
+  links:
+    - url: https://github.com/redhat-developer/rhdh-local
+      title: "rhdh-local (evaluated & rejected as base — ADR-001)"
+spec:
+  type: local-dev
+  lifecycle: production
+  owner: group:default/veecode-platform
+  system: veecode-devportal
+  dependsOn:
+    - component:default/devportal-chart
+    - resource:default/quay-veecode
