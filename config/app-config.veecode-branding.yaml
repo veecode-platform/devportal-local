@@ -1,6 +1,6 @@
 # VeeCode default config — M4 branding fragment (app.title + app.branding).
 #
-# Target line: veecode/main (Backstage 1.52.0), post M3.5 re-anchor.
+# Target line: main (formerly veecode/main; Backstage 1.52.0), post M3.5 re-anchor.
 #
 # Delivery: this is a raw app-config fragment (NOT a dynamic-plugins file).
 # It only takes effect once something adds it to the backend's --config
