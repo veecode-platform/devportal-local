@@ -1,0 +1,29 @@
+# RBAC LAB overlay. Opt-in:
+#   docker compose -f docker-compose.yml -f docker-compose.rbac-lab.yml up -d
+# Switch identity (guest → any user of rbac-lab/catalog.yaml), then recreate
+# only the portal container:
+#   LAB_USER=viewer1 LAB_GROUP=readers docker compose -f docker-compose.yml \
+#     -f docker-compose.rbac-lab.yml up -d --force-recreate --no-deps devportal
+services:
+  devportal:
+    environment:
+      LAB_USER: "${LAB_USER:-admin}"
+      LAB_GROUP: "${LAB_GROUP:-backstage-admins}"
+      LAB_RBAC_ENABLED: "${LAB_RBAC_ENABLED:-true}"
+    volumes:
+      - ./rbac-lab:/opt/app-root/src/rbac-lab:ro
+    # `command` is replaced wholesale by an override, so the base chain is
+    # repeated here with the lab fragment appended LAST (it must win).
+    command:
+      - --config
+      - dynamic-plugins-root/app-config.dynamic-plugins.yaml
+      - --config
+      - app-config.veecode-auth.yaml
+      - --config
+      - app-config.veecode-branding.yaml
+      - --config
+      - app-config.extensions.yaml
+      - --config
+      - app-config.veecode-product.yaml
+      - --config
+      - rbac-lab/app-config.rbac-lab.yaml

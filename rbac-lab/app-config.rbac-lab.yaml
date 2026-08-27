@@ -1,0 +1,70 @@
+# RBAC LAB — opt-in overlay for devportal-local (docker-compose.rbac-lab.yml).
+#
+# Goal: let a plugin developer run the portal locally, with RBAC ENFORCED, and
+# switch identities WITHOUT a real IdP. The guest provider is the switch: this
+# fragment is LAST in the --config chain, so its guest mapping overrides the
+# product default (guest → user:default/admin) with env-driven values.
+#
+#   LAB_USER=viewer1 LAB_GROUP=readers docker compose ... up -d --force-recreate devportal
+#
+# Users/groups come from a fake catalog file (rbac-lab/catalog.yaml) — "users
+# and groups belong to the catalog". Roles/permissions come from the RHDH
+# recipe: superUsers + defaultRole in app-config, plus an optional CSV —
+# "roles and permissions belong to the platform".
+auth:
+  providers:
+    guest:
+      userEntityRef: "user:default/${LAB_USER}"
+      ownershipEntityRefs: ["group:default/${LAB_GROUP}"]
+      dangerouslyAllowOutsideDevelopment: true
+
+catalog:
+  # Mirrors the internal platform's rules: discovery
+  # never yields User/Group; org-sync-shaped locations (and the lab's own org
+  # files) do. Arrays replace across --config layers, so the list is whole.
+  rules:
+    - allow: [Component, API, Resource, System, Domain, Location, Template]
+    - allow: [User, Group]
+      locations:
+        - type: url
+          pattern: 'https://gitlab.example.com/*'
+        - type: url
+          pattern: 'https://gitlab.example.com/example-org/*'
+        - type: file
+          exact: /opt/app-root/src/rbac-lab/catalog.yaml
+        - type: file
+          pattern: '/opt/app-root/src/rbac-lab/org-*.yaml'
+    - allow: [Group]
+      locations:
+        - type: url
+          exact: https://gitlab.example.com/example-org/platform-catalog/-/blob/main/catalog-info.yaml
+  locations:
+    - type: file
+      target: /opt/app-root/src/rbac-lab/catalog.yaml
+    - type: file
+      target: /opt/app-root/src/rbac-lab/org-extra.yaml
+    - type: file
+      target: /opt/app-root/src/rbac-lab/evil.yaml
+    - type: file
+      target: /opt/app-root/src/rbac-lab/sub/org-deeper.yaml
+
+permission:
+  enabled: ${LAB_RBAC_ENABLED}
+  rbac:
+    # RHDH day-1 pattern: one power-user group that can do everything
+    # (incl. /rbac), and a default role so every authenticated user keeps
+    # read access. Nothing else is granted until a CSV/UI role says so.
+    admin:
+      superUsers:
+        - name: group:default/backstage-admins
+    defaultPermissions:
+      defaultRole: role:default/viewer
+      basicPermissions:
+        - permission: catalog.entity.read
+          action: read
+        - permission: catalog-entity
+          action: read
+    # Full RHDH recipe: CSV mounted as a file, hot-reloaded. Same shape the
+    # platform will use (ConfigMap rbac-policy mounted at /opt/app-root/src/rbac).
+    policies-csv-file: /opt/app-root/src/rbac-lab/rbac-policy.csv
+    policyFileReload: true

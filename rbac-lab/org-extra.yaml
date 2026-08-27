@@ -1,0 +1,7 @@
+# Allowed by the `pattern: .../rbac-lab/org-*.yaml` rule (org-sync-shaped).
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: orguser
+spec:
+  memberOf: [readers]

@@ -1,0 +1,68 @@
+# Fake org for the RBAC lab. Mirrors the shape the GitLab org sync produces on
+# the internal platform (root group + leaf groups), with one user per role.
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: example-org
+spec:
+  type: team
+  children: [backstage-admins, developers, readers]
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: backstage-admins
+spec:
+  type: team
+  parent: example-org
+  children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: developers
+spec:
+  type: team
+  parent: example-org
+  children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: readers
+spec:
+  type: team
+  parent: example-org
+  children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: admin
+spec:
+  profile: { displayName: Admin (lab) }
+  memberOf: [backstage-admins]
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: dev1
+spec:
+  profile: { displayName: Dev One (lab) }
+  memberOf: [developers]
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: viewer1
+spec:
+  profile: { displayName: Viewer One (lab) }
+  memberOf: [readers]
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: nobody
+spec:
+  profile: { displayName: Nobody (lab, no group) }
+  memberOf: []
