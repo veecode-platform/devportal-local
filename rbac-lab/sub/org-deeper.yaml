@@ -1,0 +1,7 @@
+# `*` must not cross `/`: this is NOT matched by .../rbac-lab/org-*.yaml → rejected.
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: deeperuser
+spec:
+  memberOf: [backstage-admins]

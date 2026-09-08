@@ -1,0 +1,12 @@
+p, role:default/developer, catalog-entity, read, allow
+p, role:default/developer, catalog.entity.read, read, allow
+p, role:default/developer, catalog.entity.create, create, allow
+p, role:default/developer, catalog.location.create, create, allow
+p, role:default/developer, catalog.location.read, read, allow
+p, role:default/developer, scaffolder-template, read, allow
+p, role:default/developer, scaffolder.template.parameter.read, read, allow
+p, role:default/developer, scaffolder.template.step.read, read, allow
+p, role:default/developer, scaffolder.task.create, create, allow
+p, role:default/developer, scaffolder.task.read, read, allow
+
+g, group:default/developers, role:default/developer

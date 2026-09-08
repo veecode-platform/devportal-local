@@ -1,0 +1,17 @@
+# Simulates a catalog-info.yaml in a discovered repo claiming admin membership.
+# Must be REJECTED by catalog.rules (location not in the User/Group rules).
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: mallory
+spec:
+  memberOf: [backstage-admins]
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: evil-but-fine-component
+spec:
+  type: service
+  lifecycle: experimental
+  owner: group:default/backstage-admins
