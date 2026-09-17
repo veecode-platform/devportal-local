@@ -12,12 +12,18 @@ Open [http://localhost:7007](http://localhost:7007). To change the published UI 
 
 ## What you get
 
-This runner tracks the published chart, so `docker compose up` gives you the same product face a Kubernetes install gives you — currently chart **`devportal 0.1.21`** (see `.chart-pin`) on image `3.0.0-beta.7`:
+This runner tracks the published chart, so `docker compose up` gives you the same product face a Kubernetes install gives you — currently chart **`devportal 0.1.23`** (see `.chart-pin`) on image `3.0.0-beta.8`:
 
 - the VeeCode sidebar — Home, Catalog, APIs, Docs, Self-service, Notifications, Tech Radar, Marketplace;
 - TechDocs, Notifications/Signals and Tech Radar wired up;
 - VeeCode branding and RHDH-native theming (light and dark);
 - the marketplace, with installs that survive a restart.
+
+## Which portal image runs
+
+- By default, the runner uses the digest of the image the pinned chart points at — the product as customers run it.
+- Set `DEVPORTAL_IMAGE=veecode/devportal:edge` to opt in to the next portal.
+- `latest` is never a valid value; it is the 2.x line.
 
 ### Files derived from the chart
 
