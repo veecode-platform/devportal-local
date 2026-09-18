@@ -1,0 +1,17 @@
+services:
+  fix-volume-ownership:
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >-
+        chown -R 1001:0 /devportal-data
+        && chmod -R a+rwX /opt/app-root/src/dynamic-plugins-root
+    volumes:
+      - ./dynamic-plugins-root-dev:/opt/app-root/src/dynamic-plugins-root
+
+  install-dynamic-plugins:
+    volumes:
+      - ./dynamic-plugins-root-dev:/opt/app-root/src/dynamic-plugins-root
+
+  devportal:
+    volumes:
+      - ./dynamic-plugins-root-dev:/opt/app-root/src/dynamic-plugins-root
