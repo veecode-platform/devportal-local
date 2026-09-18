@@ -50,6 +50,22 @@ The default `config/app-config.veecode-auth.yaml` fragment enables guest sign-in
 
 On a brand-new database, the first pre-step may warn that the marketplace schema does not exist yet. The initial backend boot creates it; later install-step runs use PostgreSQL normally.
 
+## Proof 2: a locally exported plugin
+
+Use this loop to load a plugin exported from a sibling `devportal-plugins` checkout
+without publishing it:
+
+1. From the plugin workspace, run `yarn dev:dynamic`. Set `DEVPORTAL_LOCAL_DIR` to
+   the `devportal-local` checkout when it is not next to the monorepo; the command
+   exports into `dynamic-plugins-root-dev` and prints the exact Compose command.
+2. From this checkout, run the printed command, which has this shape:
+   `docker compose -f docker-compose.yml -f docker-compose.dynamic-plugins-root.yml up -d`.
+
+The first `up` on a fresh database takes about two minutes while PostgreSQL and the
+dynamic-plugin installer initialize. After a frontend edit, run `yarn dev:dynamic`
+again and refresh the portal. After a backend edit, re-export and restart the portal
+so the backend process loads the new code.
+
 ## Kubernetes and staging documentation
 
 For the Kubernetes deployment path, use [devportal-chart](https://github.com/veecode-platform/devportal-chart). The [staging preview installation guide](https://docs-next.platform.vee.codes/devportal/installation-guide/v3-preview/intro/) documents the broader DevPortal 3.x evaluation path.

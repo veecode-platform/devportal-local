@@ -1,0 +1,12 @@
+services:
+  fix-volume-ownership:
+    volumes:
+      - ./dynamic-plugins-root-dev:/opt/app-root/src/dynamic-plugins-root
+
+  install-dynamic-plugins:
+    volumes:
+      - ./dynamic-plugins-root-dev:/opt/app-root/src/dynamic-plugins-root
+
+  devportal:
+    volumes:
+      - ./dynamic-plugins-root-dev:/opt/app-root/src/dynamic-plugins-root
