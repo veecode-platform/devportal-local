@@ -1,0 +1,79 @@
+name: Nightly health
+
+# The runner is where proofs 2 and 4 happen, so "the stack still boots" has to be
+# a fact we are told, not one we discover the next time someone needs it. This
+# brings the default stack up nightly on the pinned image and waits for the
+# portal to serve.
+#
+# It boots the base compose only: no workspace plugin is mounted, so a failure
+# here is the runner or the pinned image, never someone's plugin.
+
+on:
+  schedule:
+    - cron: "41 4 * * *"
+  workflow_dispatch:
+  pull_request:
+    # A pin bump changes the image this boots; prove it before it merges.
+    paths:
+      - ".chart-pin"
+      - "docker-compose.yml"
+      - "config/**"
+      - ".github/workflows/nightly-health.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  boot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DEVPORTAL_PORT: "7007"
+      COMPOSE_PROJECT: nightly
+    steps:
+      - name: Check out devportal-local
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Report what is being booted
+        run: |
+          set -eu
+          printf 'chart pin: %s\n' "$(cat .chart-pin)"
+          grep -ohE 'veecode/devportal@sha256:[0-9a-f]+' docker-compose.yml | sort -u
+
+      - name: Bring the stack up
+        run: docker compose -p "$COMPOSE_PROJECT" up -d
+
+      - name: Wait for the portal to serve
+        id: wait
+        run: |
+          set -eu
+          # First boot is Postgres plus the dynamic-plugin installer; the portal
+          # only starts serving after that, so this is minutes, not seconds.
+          deadline=$(( $(date +%s) + 720 ))
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 \
+              "http://localhost:${DEVPORTAL_PORT}/" || true)
+            printf '%s HTTP %s\n' "$(date +%T)" "$code"
+            if [ "$code" = "200" ]; then
+              echo "portal is serving"
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "portal did not reach HTTP 200 before the deadline" >&2
+          exit 1
+
+      - name: Show why it did not come up
+        if: failure()
+        run: |
+          set +e
+          echo "=== docker compose ps ==="
+          docker compose -p "$COMPOSE_PROJECT" ps -a
+          echo "=== install-dynamic-plugins ==="
+          docker compose -p "$COMPOSE_PROJECT" logs install-dynamic-plugins --tail 80
+          echo "=== devportal ==="
+          docker compose -p "$COMPOSE_PROJECT" logs devportal --tail 200
+
+      - name: Tear down
+        if: always()
+        run: docker compose -p "$COMPOSE_PROJECT" down -v
