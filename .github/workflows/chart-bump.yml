@@ -1,0 +1,67 @@
+name: Chart bump
+
+# The runner consumes the chart: .chart-pin names the devportal-chart release
+# whose derived config `config-drift.yml` checks against, and the composes
+# default to the portal image that release ships. Neither moves on its own, so a
+# chart release used to sit unnoticed until someone looked.
+#
+# This opens a pull request instead of pushing: a consumer pins and bumps by
+# pull request, and a human merges it.
+
+on:
+  schedule:
+    # Daily, so "a chart release opens a PR within a day" holds.
+    - cron: "23 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: chart-bump
+  cancel-in-progress: false
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out devportal-local
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Move the pin to the newest chart release
+        id: bump
+        run: |
+          set -eu
+          result=$(sh scripts/bump-chart-pin.sh)
+          echo "result=$result" >> "$GITHUB_OUTPUT"
+          if [ "$result" = "changed" ]; then
+            # shellcheck disable=SC2002
+            cat .chart-bump-summary >> "$GITHUB_OUTPUT"
+            rm -f .chart-bump-summary
+          fi
+
+      - name: Open the bump pull request
+        if: steps.bump.outputs.result == 'changed'
+        uses: peter-evans/create-pull-request@22a9089034f40e5a961c8808d113e2c98fb63676 # v7.0.11
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: chore/chart-pin-${{ steps.bump.outputs.new_pin }}
+          delete-branch: true
+          commit-message: |
+            chore: pin devportal-chart ${{ steps.bump.outputs.new_pin }}
+
+            Moves .chart-pin from ${{ steps.bump.outputs.previous_pin }} and
+            realigns the portal image digest the composes default to.
+          title: "chore: pin devportal-chart ${{ steps.bump.outputs.new_pin }}"
+          body: |
+            `devportal-chart` released **${{ steps.bump.outputs.new_pin }}**; this runner was pinned to `${{ steps.bump.outputs.previous_pin }}`.
+
+            | | before | after |
+            |---|---|---|
+            | `.chart-pin` | `${{ steps.bump.outputs.previous_pin }}` | `${{ steps.bump.outputs.new_pin }}` |
+            | portal image digest | `${{ steps.bump.outputs.previous_digest }}` | `${{ steps.bump.outputs.new_digest }}` |
+
+            The digest is read from `charts/backstage/values.yaml` in the chart at the new tag, so the pin and the image stay in step. `config-drift.yml` checks the derived config against the pinned chart, so it will report any config that this release changed and this repository has not followed yet — read its result on this pull request before merging.
+
+            Opened by `.github/workflows/chart-bump.yml`.
