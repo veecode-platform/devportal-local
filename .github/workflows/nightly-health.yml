@@ -2,11 +2,11 @@ name: Nightly health
 
 # The runner is where proofs 2 and 4 happen, so "the stack still boots" has to be
 # a fact we are told, not one we discover the next time someone needs it. This
-# brings the default stack up nightly on the pinned image and waits for the
-# portal to serve.
+# brings the default stack up nightly on the pinned image, waits for the portal
+# to serve, and checks enabled face plugins against the API and installer logs.
 #
-# It boots the base compose only: no workspace plugin is mounted, so a failure
-# here is the runner or the pinned image, never someone's plugin.
+# It boots the base compose only. The check covers the product face baked into
+# the pinned image; no workspace plugin is mounted.
 
 on:
   schedule:
@@ -18,6 +18,7 @@ on:
       - ".chart-pin"
       - "docker-compose.yml"
       - "config/**"
+      - "scripts/check-loaded-plugins.sh"
       - ".github/workflows/nightly-health.yml"
 
 permissions:
@@ -63,7 +64,10 @@ jobs:
           echo "portal did not reach HTTP 200 before the deadline" >&2
           exit 1
 
-      - name: Show why it did not come up
+      - name: Check the loaded product plugins
+        run: scripts/check-loaded-plugins.sh
+
+      - name: Show why the stack or plugin check failed
         if: failure()
         run: |
           set +e
