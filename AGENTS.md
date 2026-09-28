@@ -15,7 +15,9 @@ marketplace walkthrough and proof 2 with a locally exported plugin.
 - The files under `config/` and `dynamic-plugins.yaml` come from the chart at
   `.chart-pin`: three are byte copies, and the two rendered ones carry a
   `DERIVED FILE` header. Copy or re-render them from the chart instead of
-  editing them; `scripts/check-config-drift.sh` checks them against the chart.
+  editing them. `scripts/check-config-drift.sh` byte-compares the three copies
+  with the chart, but only checks that the rendered ones exist; re-render them
+  by hand when the chart's template changes.
 - `DEVPORTAL_IMAGE` is an explicit opt-in to another image, such as `:edge`.
   `latest` is never valid: it is the 2.x line.
 
