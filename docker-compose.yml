@@ -1,6 +1,6 @@
 name: devportal-local
 
-# Image 3.0.0-beta.9 (chart-v0.1.24): bakes the product face
+# Image 3.0.0-beta.9 (chart-v0.1.25): bakes the product face
 # (dynamic-plugins.veecode.yaml) + installer fail-closed/backstop. Since
 # chart-v0.1.20 the operator config enters as dynamic-plugins.operator.yaml and
 # merge-dynamic-plugins.js writes the level-1 dynamic-plugins.yaml the installer
