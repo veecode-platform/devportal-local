@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "scripts/**"
+      - "docker-compose.yml"
       - ".github/workflows/scripts-test.yml"
 
 permissions:

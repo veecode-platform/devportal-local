@@ -22,7 +22,7 @@ fail() {
 CURRENT_PIN=$(tr -d ' \t\n\r' < "$PIN_FILE")
 [ -n "$CURRENT_PIN" ] || fail ".chart-pin is empty"
 
-# Newest chart-v* tag, by version order. ls-remote avoids cloning the chart just
+# Newest final chart-v* tag, by version order. ls-remote avoids cloning the chart just
 # to read a tag name.
 LATEST_PIN=$(git ls-remote --tags --refs "$CHART_REPOSITORY" 'chart-v*' 2>/dev/null \
   | awk -F/ '{print $NF}' \

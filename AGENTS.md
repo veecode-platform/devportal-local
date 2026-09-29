@@ -26,6 +26,7 @@ marketplace walkthrough and proof 2 with a locally exported plugin.
 ```bash
 scripts/check-config-drift.sh   # needs git and network; compares config/ with the chart at .chart-pin
 docker compose config -q        # parses the compose files
+for t in scripts/test-*.sh; do sh "$t"; done   # the script tests, which CI runs as scripts-test
 ```
 
 Booting the stack is heavy; run `docker compose up` on a machine meant for it.
