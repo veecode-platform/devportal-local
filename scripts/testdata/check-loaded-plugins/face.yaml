@@ -1,0 +1,12 @@
+plugins:
+  - package: oci://registry.example.invalid/veecode/veecode-platform-plugin-alpha:1.0.0!veecode-platform-plugin-alpha
+    disabled: false
+    pluginConfig:
+      dynamicPlugins:
+        frontend:
+          veecode-platform.plugin-alpha: {}
+  - package: oci://registry.example.invalid/community/backstage-community-plugin-beta:1.0.0!backstage-community-plugin-beta
+  - package: ./dynamic-plugins/dist/gamma-plugin
+    disabled: false
+  - package: oci://registry.example.invalid/community/backstage-community-plugin-delta:1.0.0!backstage-community-plugin-delta
+    disabled: true
