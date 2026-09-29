@@ -26,6 +26,7 @@ CURRENT_PIN=$(tr -d ' \t\n\r' < "$PIN_FILE")
 # to read a tag name.
 LATEST_PIN=$(git ls-remote --tags --refs "$CHART_REPOSITORY" 'chart-v*' 2>/dev/null \
   | awk -F/ '{print $NF}' \
+  | grep -E '^chart-v[0-9]+\.[0-9]+\.[0-9]+$' \
   | sort -V \
   | tail -1)
 [ -n "$LATEST_PIN" ] || fail "could not list chart-v* tags from $CHART_REPOSITORY"
