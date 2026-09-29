@@ -1,4 +1,17 @@
 #!/bin/sh
+#
+# Checks that the enabled product-face plugins are loaded by a running portal.
+#
+# The portal is reached at DEVPORTAL_URL, or http://localhost:${DEVPORTAL_PORT:-7007}.
+# By default the face and the installer logs come from a docker compose project
+# named COMPOSE_PROJECT (default devportal-local). Set these to read them
+# from anywhere else, for example a Kubernetes install:
+#
+#   FACE_CMD  shell command that prints the product face file.
+#   LOGS_CMD  shell command that prints the dynamic-plugins installer logs.
+#
+# An unset or empty variable keeps the docker compose default for that source.
+# docker is required only while a default is in use.
 
 set -eu
 
@@ -8,6 +21,9 @@ fail() {
 }
 
 for command_name in awk curl docker grep python3; do
+  if [ "$command_name" = docker ] && [ -n "${FACE_CMD:-}" ] && [ -n "${LOGS_CMD:-}" ]; then
+    continue
+  fi
   if ! command -v "$command_name" >/dev/null 2>&1; then
     fail "required command is missing: $command_name"
   fi
@@ -18,7 +34,23 @@ portal_url=${DEVPORTAL_URL:-http://localhost:${DEVPORTAL_PORT:-7007}}
 portal_url=${portal_url%/}
 face_file=/opt/app-root/src/dynamic-plugins.veecode.yaml
 
-if ! face_config=$(docker compose -p "$compose_project" exec -T devportal cat "$face_file" 2>/dev/null); then
+read_face() {
+  if [ -n "${FACE_CMD:-}" ]; then
+    sh -c "$FACE_CMD"
+  else
+    docker compose -p "$compose_project" exec -T devportal cat "$face_file"
+  fi
+}
+
+read_installer_logs() {
+  if [ -n "${LOGS_CMD:-}" ]; then
+    sh -c "$LOGS_CMD"
+  else
+    docker compose -p "$compose_project" logs --no-color install-dynamic-plugins
+  fi
+}
+
+if ! face_config=$(read_face 2>/dev/null); then
   fail "could not read the product face from the running devportal service"
 fi
 
@@ -151,7 +183,7 @@ case "$matching_count" in
   ''|*[!0-9]*) fail "could not count matching product-face plugins" ;;
 esac
 
-if ! installer_logs=$(docker compose -p "$compose_project" logs --no-color install-dynamic-plugins 2>/dev/null); then
+if ! installer_logs=$(read_installer_logs 2>/dev/null); then
   fail "could not read install-dynamic-plugins logs"
 fi
 
