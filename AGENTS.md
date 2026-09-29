@@ -26,6 +26,7 @@ marketplace walkthrough and proof 2 with a locally exported plugin.
 ```bash
 scripts/check-config-drift.sh   # needs git and network; compares config/ with the chart at .chart-pin
 docker compose config -q        # parses the compose files
+(set -e; for t in scripts/test-*.sh; do sh "$t"; done)   # the script tests; stops at the first failure, as CI does
 ```
 
 Booting the stack is heavy; run `docker compose up` on a machine meant for it.
@@ -34,6 +35,7 @@ requests that touch the pin or the config.
 
 ## Release path
 
-`chart-bump.yml` runs daily, reads the newest `chart-v*` tag of
-`veecode-platform/devportal-chart`, and opens a pull request that moves
-`.chart-pin` and the digest. A person merges it.
+`chart-bump.yml` runs daily, reads the newest final `chart-v*` tag
+(`chart-vX.Y.Z`) of `veecode-platform/devportal-chart`, and opens a pull
+request that moves `.chart-pin` and the digest. It ignores release candidates
+such as `chart-v1.0.0-rc.1`. A person merges it.

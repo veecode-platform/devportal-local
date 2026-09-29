@@ -1,0 +1,30 @@
+name: Scripts test
+
+on:
+  pull_request:
+    paths:
+      - "scripts/**"
+      - "docker-compose.yml"
+      - ".github/workflows/scripts-test.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  scripts-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out devportal-local
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Run every scripts/test-*.sh
+        run: |
+          failed=
+          for script in scripts/test-*.sh; do
+            printf '=== %s\n' "$script"
+            sh "$script" || failed="$failed $script"
+          done
+          if [ -n "$failed" ]; then
+            printf 'failed:%s\n' "$failed" >&2
+            exit 1
+          fi
