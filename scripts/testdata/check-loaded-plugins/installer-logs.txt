@@ -1,0 +1,16 @@
+VEECODE prestep: WARNING — database example_extensions does not exist yet; fresh tenant, leaving /devportal-data/extensions-install.yaml as-is
+VEECODE merge: wrote /devportal-data/dynamic-plugins.yaml: 0 operator plugin(s) + 0 marketplace plugin(s)
+======= Workers: 1 (CPUs: 4)
+======= Config file: /opt/app-root/src/dynamic-plugins.yaml
+
+======= Including plugins from /opt/app-root/src/dynamic-plugins.veecode.yaml
+
+======= Disabling OCI plugin oci://registry.example.invalid/community/backstage-community-plugin-delta:1.0.0
+
+======= Installing dynamic plugin oci://registry.example.invalid/veecode/veecode-platform-plugin-alpha:1.0.0!veecode-platform-plugin-alpha
+	==> Successfully installed dynamic plugin oci://registry.example.invalid/veecode/veecode-platform-plugin-alpha:1.0.0!veecode-platform-plugin-alpha
+
+======= Installing dynamic plugin oci://registry.example.invalid/community/backstage-community-plugin-beta:1.0.0!backstage-community-plugin-beta
+	==> Successfully installed dynamic plugin oci://registry.example.invalid/community/backstage-community-plugin-beta:1.0.0!backstage-community-plugin-beta
+
+======= Removing lock file: /dynamic-plugins-root/install-dynamic-plugins.lock
