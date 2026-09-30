@@ -1,1 +1,1 @@
-These three fragments are derived from devportal-chart@chart-v0.1.0 and must never be edited here; update the chart, then regenerate and pass the drift check.
+The files in this folder come from `devportal-chart` at the tag in `.chart-pin` and must never be edited here: three are byte copies of chart files and `app-config.veecode-product.yaml` is rendered from the chart's template. Update the chart, then copy or re-render the file and pass `scripts/check-config-drift.sh`.
