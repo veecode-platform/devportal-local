@@ -8,7 +8,7 @@ cd devportal-local
 docker compose up
 ```
 
-Open [http://localhost:7007](http://localhost:7007). To change the published UI port or the local PostgreSQL password, copy `.env.example` to `.env` before starting. PostgreSQL is part of the default stack because the marketplace installation state is stored there.
+Open [http://localhost:7007](http://localhost:7007). To change the published UI port or the local PostgreSQL password, copy `.env.example` to `.env` before starting. The portal's base URLs follow `DEVPORTAL_PORT`, so open it at `http://localhost:<port>`. PostgreSQL is part of the default stack because the marketplace installation state is stored there.
 
 ## What you get
 

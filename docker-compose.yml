@@ -80,6 +80,10 @@ services:
       POSTGRES_USER: rhdh
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-rhdh}"
       DEVPORTAL_DB_PATH: /devportal-data
+      # The browser loads the frontend plugins from these URLs, so they follow
+      # the published port. The image's app-config files fix them at 7007.
+      APP_CONFIG_app_baseUrl: "http://localhost:${DEVPORTAL_PORT:-7007}"
+      APP_CONFIG_backend_baseUrl: "http://localhost:${DEVPORTAL_PORT:-7007}"
     volumes:
       - dynamic-plugins-root:/opt/app-root/src/dynamic-plugins-root
       - devportal-data:/devportal-data
