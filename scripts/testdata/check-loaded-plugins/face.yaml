@@ -10,3 +10,7 @@ plugins:
     disabled: false
   - package: oci://registry.example.invalid/community/backstage-community-plugin-delta:1.0.0!backstage-community-plugin-delta
     disabled: true
+  - package: oci://registry.example.invalid/veecode/devportal-marketplace-frontend-dynamic:1.0.0!devportal-marketplace-frontend-dynamic
+    disabled: false
+  - package: ./dynamic-plugins/dist/backstage-community-plugin-tech-radar-backend-dynamic
+    disabled: false
