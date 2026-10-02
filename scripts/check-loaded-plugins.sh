@@ -145,16 +145,23 @@ if ! match_report=$(printf '%s' "$loaded_response" | python3 -c '
 import json
 import sys
 
+# An OCI artifact names its plugin directory after the package, without the
+# "@", with "/" turned into "-" and without the "-dynamic" suffix the export
+# adds. Compare every name in that form.
+def plugin_key(name):
+    if name.startswith("@"):
+        name = name[1:].replace("/", "-", 1)
+    if name.endswith("-dynamic"):
+        name = name[: -len("-dynamic")]
+    return name
+
 def expected_name(reference):
     if reference.startswith("oci://"):
         package = reference.rsplit("!", 1)[-1]
-        package = package.rsplit("/", 1)[-1]
-        if package.startswith("veecode-platform-"):
-            return "@veecode-platform/" + package[len("veecode-platform-"):] + "-dynamic"
-        return package + "-dynamic"
+        return package.rsplit("/", 1)[-1]
     if reference.startswith("./"):
-        return reference.rsplit("/", 1)[-1]
-    return reference
+        return plugin_key(reference.rsplit("/", 1)[-1])
+    return plugin_key(reference)
 
 try:
     plugins = json.load(sys.stdin)
@@ -165,7 +172,7 @@ if not isinstance(plugins, list):
     sys.exit(1)
 
 loaded_names = {
-    plugin["name"]
+    plugin_key(plugin["name"])
     for plugin in plugins
     if isinstance(plugin, dict) and isinstance(plugin.get("name"), str)
 }

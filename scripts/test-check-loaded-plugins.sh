@@ -129,7 +129,7 @@ sed 's/plugin-beta-dynamic/plugin-beta-renamed/' "$DATA_DIR/loaded-plugins.json"
 run_check
 expect_status 'plugin missing from the API' 1
 expect_line 'plugin missing from the API' \
-  'loaded plugins check: FAIL (enabled product-face plugins missing from API: backstage-community-plugin-beta-dynamic)' "$err"
+  'loaded plugins check: FAIL (enabled product-face plugins missing from API: backstage-community-plugin-beta)' "$err"
 printf 'loaded plugins check test: plugin missing from the API: FAIL as expected\n'
 
 cp "$DATA_DIR/loaded-plugins.json" "$WORK_DIR/loaded.json"

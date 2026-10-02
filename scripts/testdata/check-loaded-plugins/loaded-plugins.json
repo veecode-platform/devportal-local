@@ -1,6 +1,6 @@
 [
   {"name": "@veecode-platform/plugin-alpha-dynamic", "version": "1.0.0", "role": "frontend-plugin"},
-  {"name": "backstage-community-plugin-beta-dynamic", "version": "1.0.0", "role": "backend-plugin"},
+  {"name": "@backstage-community/plugin-beta-dynamic", "version": "1.0.0", "role": "backend-plugin"},
   {"name": "gamma-plugin", "version": "1.0.0", "role": "backend-plugin"},
   {"name": "unrelated-plugin", "version": "1.0.0", "role": "backend-plugin"}
 ]
