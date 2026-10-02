@@ -15,10 +15,19 @@
 # VeeCode product identity — chart 0.1.1 (M4.7 decision round).
 #
 # Rendered through Helm `tpl` (see templates/veecode-configmaps.yaml), so every
-# value below is driven by `global.veecode.*` in values.yaml. This fragment is
-# loaded LAST in the backend --config chain (extraAppConfig), so it OVERRIDES
-# earlier fragments — that is how branding title/width and the Tech Radar URL
-# become per-deployment values without editing the baked branding file.
+# value below is driven by `global.veecode.*` in values.yaml. It is loaded LATE in
+# the backend --config chain (extraAppConfig), so it OVERRIDES the baked fragments
+# — that is how branding title/width and the Tech Radar URL become per-deployment
+# values without editing the baked branding file.
+#
+# CORRECTION (2026-08-17): this fragment is NOT last. Read from a running pod's args,
+# the chain is
+#   app-config.dynamic-plugins → veecode-auth → veecode-branding → extensions →
+#   veecode-product (this file) → app-config-from-configmap
+# and that final entry is `upstream.backstage.appConfig` — whatever the DEPLOYMENT
+# sets. Deployment-wins is the right precedence, but it matters for ARRAYS, which
+# app-config REPLACES rather than merges: a deployment that declares
+# `backend.reading.allow` discards the list below and must restate its hosts.
 app:
   title: "VeeCode DevPortal"
   # Sidebar Search is a SHELL-level toggle: the 3.x app-shell reads
@@ -77,7 +86,6 @@ app:
         links:
           - url: "https://github.com/veecode-platform/support/discussions"
             title: GitHub Issues
-
 # TechDocs — local build/serve/publish contract (parity with 2.x
 # app-config.yaml:116-122). Enables the /docs surface backed by the techdocs
 # dynamic plugins added in values.yaml global.dynamic.plugins.
@@ -87,8 +95,32 @@ techdocs:
     runIn: local
   publisher:
     type: local
-
 # Tech Radar data source — the real VeeCode endpoint (2.x app-config.yaml:172-179),
 # overriding the placeholder sample URL carried by app-config.extensions.yaml.
 techRadar:
   url: https://platform.vee.codes/techradar.json
+# The URL above is HALF of the Tech Radar config, and the half that was missing until
+# 0.1.8. The RHDH tech-radar plugin fetches through the BACKEND (`/api/tech-radar/data`
+# → UrlReader), not from the browser, and UrlReader refuses any host that is neither
+# covered by an integration nor listed here:
+#
+#   tech-radar warn Failed to read file from https://platform.vee.codes/techradar.json …
+#   "Reading from … is not allowed. You may need to configure an integration for the
+#    target host, or add it to the configured list of allowed hosts at
+#    'backend.reading.allow'"
+#
+# so every Tech Radar page load answered 502 while the page itself rendered — a silent
+# failure from 0.1.3 (when Tech Radar was added for 2.x face parity) to 0.1.8. The 2.x
+# config carried both halves (`app-config.yaml:88` and `:178`); porting took only the URL.
+#
+# Deliberately minimal: only the host our own default points at. The 2.x list also had
+# github.com, gitlab.com, api.apis.guru, example.com and '*.mozilla.org' — github/gitlab
+# arrive through integrations, and the rest have no consumer in this chart. A reading
+# allowlist is a security surface; entries earn their place by something needing them.
+#
+# NOTE for consumers: app-config arrays REPLACE rather than merge, so a deployment that
+# sets `backend.reading.allow` in a later --config fragment must re-declare this host.
+backend:
+  reading:
+    allow:
+      - host: platform.vee.codes
