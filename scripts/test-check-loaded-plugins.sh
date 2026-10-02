@@ -116,9 +116,9 @@ cp "$DATA_DIR/installer-logs.txt" "$WORK_DIR/installer.log"
 
 run_check
 expect_status 'all plugins loaded' 0
-expected='loaded plugins check: product-face entries: 4 (enabled: 3, disabled: 1)
-loaded plugins check: API plugin records: 4
-loaded plugins check: enabled face entries found in API: 3 of 3
+expected='loaded plugins check: product-face entries: 6 (enabled: 5, disabled: 1)
+loaded plugins check: API plugin records: 6
+loaded plugins check: enabled face entries found in API: 5 of 5
 loaded plugins check: PASS'
 [ "$out" = "$expected" ] || fail "all plugins loaded: unexpected output: $out"
 [ -z "$err" ] || fail "all plugins loaded: unexpected stderr: $err"
