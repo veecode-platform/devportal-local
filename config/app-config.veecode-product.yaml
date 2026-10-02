@@ -86,7 +86,6 @@ app:
         links:
           - url: "https://github.com/veecode-platform/support/discussions"
             title: GitHub Issues
-
 # TechDocs — local build/serve/publish contract (parity with 2.x
 # app-config.yaml:116-122). Enables the /docs surface backed by the techdocs
 # dynamic plugins added in values.yaml global.dynamic.plugins.
@@ -96,12 +95,10 @@ techdocs:
     runIn: local
   publisher:
     type: local
-
 # Tech Radar data source — the real VeeCode endpoint (2.x app-config.yaml:172-179),
 # overriding the placeholder sample URL carried by app-config.extensions.yaml.
 techRadar:
   url: https://platform.vee.codes/techradar.json
-
 # The URL above is HALF of the Tech Radar config, and the half that was missing until
 # 0.1.8. The RHDH tech-radar plugin fetches through the BACKEND (`/api/tech-radar/data`
 # → UrlReader), not from the browser, and UrlReader refuses any host that is neither
