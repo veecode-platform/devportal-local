@@ -24,7 +24,7 @@ services:
   # from the image. The installer runs as UID 1001, so fix ownership first.
   fix-volume-ownership:
     # DevPortal 3.0.0; pinned by digest for reproducible evaluation.
-    image: ${DEVPORTAL_IMAGE:-docker.io/veecode/devportal@sha256:585daa40009ca79988766a717257d592bce0f711b851fa06c200954aeafc6564}
+    image: ${DEVPORTAL_IMAGE:-docker.io/veecode/devportal@sha256:881f936ff4a38b31998d52cb6cd558d6b5e6fca9a3d99b08e80aba77913aaa38}
     user: "0"
     entrypoint: ["/bin/sh", "-c", "chown -R 1001:0 /opt/app-root/src/dynamic-plugins-root /devportal-data"]
     volumes:
@@ -33,7 +33,7 @@ services:
 
   install-dynamic-plugins:
     # DevPortal 3.0.0; pinned by digest for reproducible evaluation.
-    image: ${DEVPORTAL_IMAGE:-docker.io/veecode/devportal@sha256:585daa40009ca79988766a717257d592bce0f711b851fa06c200954aeafc6564}
+    image: ${DEVPORTAL_IMAGE:-docker.io/veecode/devportal@sha256:881f936ff4a38b31998d52cb6cd558d6b5e6fca9a3d99b08e80aba77913aaa38}
     depends_on:
       fix-volume-ownership:
         condition: service_completed_successfully
@@ -70,7 +70,7 @@ services:
 
   devportal:
     # DevPortal 3.0.0; pinned by digest for reproducible evaluation.
-    image: ${DEVPORTAL_IMAGE:-docker.io/veecode/devportal@sha256:585daa40009ca79988766a717257d592bce0f711b851fa06c200954aeafc6564}
+    image: ${DEVPORTAL_IMAGE:-docker.io/veecode/devportal@sha256:881f936ff4a38b31998d52cb6cd558d6b5e6fca9a3d99b08e80aba77913aaa38}
     depends_on:
       install-dynamic-plugins:
         condition: service_completed_successfully
