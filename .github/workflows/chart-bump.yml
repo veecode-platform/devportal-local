@@ -15,6 +15,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: write
   contents: write
   pull-requests: write
 
@@ -42,6 +43,7 @@ jobs:
           fi
 
       - name: Open the bump pull request
+        id: pr
         if: steps.bump.outputs.result == 'changed'
         uses: peter-evans/create-pull-request@22a9089034f40e5a961c8808d113e2c98fb63676 # v7.0.11
         with:
@@ -65,3 +67,17 @@ jobs:
             The digest is read from `charts/backstage/values.yaml` in the chart at the new tag, so the pin and the image stay in step. `config-drift.yml` checks the derived config against the pinned chart, so it will report any config that this release changed and this repository has not followed yet — read its result on this pull request before merging.
 
             Opened by `.github/workflows/chart-bump.yml`.
+
+      # A pull request opened with GITHUB_TOKEN starts no pull_request workflow, so
+      # its checks would sit unstarted until a human pushed. workflow_dispatch is the
+      # one event GITHUB_TOKEN can start; the runs report on the branch's head commit.
+      - name: Run the pull request checks
+        if: steps.pr.outputs.pull-request-operation == 'created' || steps.pr.outputs.pull-request-operation == 'updated'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: ${{ steps.pr.outputs.pull-request-branch }}
+        run: |
+          set -eu
+          for workflow in config-drift.yml scripts-test.yml nightly-health.yml; do
+            gh workflow run "$workflow" --ref "$BRANCH"
+          done
