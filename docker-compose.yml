@@ -51,7 +51,7 @@ services:
         && sh install-dynamic-plugins.sh /opt/app-root/src/dynamic-plugins-root
     environment:
       MAX_ENTRY_SIZE: "40000000"
-      CATALOG_INDEX_IMAGE: quay.io/veecode/plugin-catalog-index:bs_1.52.0
+      CATALOG_INDEX_IMAGE: quay.io/veecode/plugin-catalog-index@sha256:927f6c7c3fb838ac6f654a7ddc76c2fa9e57fdc077aaef30f678f076e96810ee
       CATALOG_ENTITIES_EXTRACT_DIR: /devportal-data/catalog-entities-extract
       DEVPORTAL_DB_PATH: /devportal-data
       DEVPORTAL_FACE_FILE: /opt/app-root/src/dynamic-plugins.veecode.yaml
