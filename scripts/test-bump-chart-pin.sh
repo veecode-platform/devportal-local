@@ -83,16 +83,16 @@ cp "$ROOT_DIR/scripts/bump-chart-pin.sh" "$TREE/scripts/"
 cp "$ROOT_DIR/docker-compose.yml" "$TREE/"
 printf 'chart-v0.1.25\n' > "$TREE/.chart-pin"
 OLD_DIGEST=$(compose_digests)
-TAG_INDEX=quay.io/veecode/plugin-catalog-index:bs_1.52.0
+OLD_INDEX=$(compose_index)
 git init -q --bare "$CHART_BARE"
 git init -q "$CHART_SRC"
 
 tag_chart chart-v0.1.25 a veecode/plugin-catalog-index bs_1.52.0
-check 'only chart-v0.1.25' unchanged chart-v0.1.25 "$OLD_DIGEST" "$TAG_INDEX"
+check 'only chart-v0.1.25' unchanged chart-v0.1.25 "$OLD_DIGEST" "$OLD_INDEX"
 
 tag_chart chart-v1.0.0-rc.1 b veecode/plugin-catalog-index bs_1.52.0
 tag_chart chart-v1.0.0-rc.2 c veecode/plugin-catalog-index bs_1.52.0
-check 'chart-v1.0.0-rc.1 and chart-v1.0.0-rc.2 added' unchanged chart-v0.1.25 "$OLD_DIGEST" "$TAG_INDEX"
+check 'chart-v1.0.0-rc.1 and chart-v1.0.0-rc.2 added' unchanged chart-v0.1.25 "$OLD_DIGEST" "$OLD_INDEX"
 
 tag_chart chart-v1.0.0 d veecode/plugin-catalog-index bs_1.52.1
 check 'chart-v1.0.0 added (tag form)' changed chart-v1.0.0 "$(digest d)" \
