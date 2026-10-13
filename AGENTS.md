@@ -10,7 +10,8 @@ marketplace walkthrough and proof 2 with a locally exported plugin.
 ## Invariants
 
 - `.chart-pin` names a `devportal-chart` release tag. The image digest in every
-  compose file is the digest that release pins. Move both with
+  compose file is the digest that release pins, and `CATALOG_INDEX_IMAGE` is
+  that release's `global.catalogIndex.image`. Move them with
   `scripts/bump-chart-pin.sh`, never by hand.
 - The files under `config/` and `dynamic-plugins.yaml` come from the chart at
   `.chart-pin`: three are byte copies, and the two rendered ones carry a
