@@ -25,6 +25,10 @@ This runner tracks the published chart, so `docker compose up` gives you the sam
 - Set `DEVPORTAL_IMAGE=veecode/devportal:edge` to opt in to the next portal.
 - `latest` is never a valid value; it is the 2.x line.
 
+### Catalog index
+
+`CATALOG_INDEX_IMAGE` in `docker-compose.yml` names the plugin catalog image the installer reads. It comes from `global.catalogIndex.image` of the chart release in `.chart-pin`: `scripts/bump-chart-pin.sh` copies it with the portal digest, so it moves with the pin and is never edited by hand.
+
 ### Files derived from the chart
 
 The chart repo is the single source of truth for configuration; this repo vendors from it and CI enforces that with `scripts/check-config-drift.sh` (run it yourself any time — it needs `git` and network access):

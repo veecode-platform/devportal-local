@@ -54,7 +54,7 @@ jobs:
             chore: pin devportal-chart ${{ steps.bump.outputs.new_pin }}
 
             Moves .chart-pin from ${{ steps.bump.outputs.previous_pin }} and
-            realigns the portal image digest the composes default to.
+            realigns the portal image digest and the catalog index the composes default to.
           title: "chore: pin devportal-chart ${{ steps.bump.outputs.new_pin }}"
           body: |
             `devportal-chart` released **${{ steps.bump.outputs.new_pin }}**; this runner was pinned to `${{ steps.bump.outputs.previous_pin }}`.
@@ -63,8 +63,9 @@ jobs:
             |---|---|---|
             | `.chart-pin` | `${{ steps.bump.outputs.previous_pin }}` | `${{ steps.bump.outputs.new_pin }}` |
             | portal image digest | `${{ steps.bump.outputs.previous_digest }}` | `${{ steps.bump.outputs.new_digest }}` |
+            | catalog index | `${{ steps.bump.outputs.previous_index }}` | `${{ steps.bump.outputs.new_index }}` |
 
-            The digest is read from `charts/backstage/values.yaml` in the chart at the new tag, so the pin and the image stay in step. `config-drift.yml` checks the derived config against the pinned chart, so it will report any config that this release changed and this repository has not followed yet — read its result on this pull request before merging.
+            The digest and the catalog index are read from `charts/backstage/values.yaml` in the chart at the new tag, so the pin and the images stay in step. `config-drift.yml` checks the derived config against the pinned chart, so it will report any config that this release changed and this repository has not followed yet — read its result on this pull request before merging.
 
             Opened by `.github/workflows/chart-bump.yml`.
 
