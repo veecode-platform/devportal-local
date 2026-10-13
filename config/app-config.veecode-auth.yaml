@@ -7,16 +7,18 @@
 # │  identity. With it in the config chain, ANYONE who can reach the URL     │
 # │  enters as an administrator, with no password.                           │
 # │                                                                          │
-# │  That is deliberate and it is the default, because it is what makes a    │
-# │  fresh install usable in one step: you open it, you look around, you     │
-# │  try the marketplace. It is NOT what you want the day the portal points  │
-# │  at real integrations — a guest-admin can then run scaffolder templates  │
-# │  and install plugins, and RBAC enforcement is OFF until M6.              │
+# │  That is deliberate. It makes a fresh install usable in one step:        │
+# │  you open it, you look around, you try the marketplace. It is NOT what   │
+# │  you want the day the portal points at real integrations — a guest-admin │
+# │  can then run scaffolder templates and install plugins, and RBAC         │
+# │  enforcement is OFF until M6.                                            │
 # │                                                                          │
-# │  TO TURN IT OFF: stop delivering this fragment (remove its entry from    │
-# │  the chart's extraAppConfig / from the local runner's --config chain)    │
-# │  and configure a real provider (GitLab/GitHub OAuth) instead. There is   │
-# │  nothing else to undo — the image itself carries no auth decision.       │
+# │  The chart delivers this fragment only when                              │
+# │  global.veecode.guestAuth.enabled is true, which is off by default from  │
+# │  chart 1.0.4. The local runner (devportal-local) puts it in its --config │
+# │  chain. TO TURN IT OFF: set that value to false, or drop the fragment    │
+# │  from the local runner's --config chain, and configure a real provider   │
+# │  (GitLab/GitHub OAuth) instead. The image carries no auth decision.      │
 # └──────────────────────────────────────────────────────────────────────────┘
 #
 # WHY THIS LIVES IN CONFIG AND NOT IN THE IMAGE (ADR-003, amendment point 9):
