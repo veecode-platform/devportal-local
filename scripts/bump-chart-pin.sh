@@ -1,21 +1,47 @@
 #!/bin/sh
 # Move .chart-pin to the newest devportal-chart release and realign the image
-# digest the composes default to.
+# digest and the catalog index reference the composes default to.
 #
 # The pin is the contract: check-config-drift.sh clones the chart at .chart-pin
-# and compares the derived config against it, so the pin and the digest must
-# move together. Prints "changed" on stdout when it wrote something, "unchanged"
-# otherwise; always exits 0 unless it could not determine the answer.
+# and compares the derived config against it, so the pin and the derived
+# references must move together. Prints "changed" on stdout when it wrote
+# something, "unchanged" otherwise; always exits 0 unless it could not determine
+# the answer.
 set -eu
 
 ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P)
 CHART_REPOSITORY=${CHART_REPOSITORY:-https://github.com/veecode-platform/devportal-chart.git}
 PIN_FILE=$ROOT_DIR/.chart-pin
 COMPOSE_FILES="docker-compose.yml docker-compose.dynamic-plugins-root.yml docker-compose.rbac-lab.yml"
+INDEX_FILE=$ROOT_DIR/docker-compose.yml
 
 fail() {
   printf 'chart bump: FAIL (%s)\n' "$1" >&2
   exit 1
+}
+
+# Prints one field (registry, repository or tag) of global.catalogIndex.image from
+# a chart's values.yaml. The chart indents these keys two spaces per level, so each
+# is matched at its exact depth; an unexpected layout prints nothing, and the caller
+# fails rather than reading the wrong block.
+index_field() {
+  awk -v field="$1" '
+    /^global:/ { g = 1; next }
+    /^[^ #]/ { g = 0; c = 0; i = 0 }
+    g && /^  catalogIndex:/ { c = 1; next }
+    g && /^  [^ #]/ { c = 0; i = 0 }
+    c && /^    image:/ { i = 1; next }
+    c && /^    [^ #]/ { i = 0 }
+    i && index($0, "      " field ":") == 1 {
+      value = substr($0, length(field) + 8)
+      sub(/^[ \t]+/, "", value)
+      gsub(/"/, "", value)
+      sub(/[ \t]*#.*/, "", value)
+      sub(/[ \t]+$/, "", value)
+      print value
+      exit
+    }
+  ' "$2"
 }
 
 [ -f "$PIN_FILE" ] || fail "missing .chart-pin"
@@ -65,20 +91,35 @@ case "$NEW_DIGEST" in
   *) fail "no veecode/devportal digest found in chart $LATEST_PIN" ;;
 esac
 
+# Composed the way the chart composes CATALOG_INDEX_IMAGE, so a tag (repository
+# veecode/plugin-catalog-index) and a digest (repository veecode/plugin-catalog-index@sha256,
+# tag <hex>) both come out as a valid reference.
+NEW_INDEX=$(index_field registry "$VALUES")/$(index_field repository "$VALUES"):$(index_field tag "$VALUES")
+printf '%s\n' "$NEW_INDEX" \
+  | grep -Eq '^[a-z0-9.:-]+/[a-z0-9._/-]+(@sha256:[0-9a-f]{64}|:[A-Za-z0-9_.-]+)$' \
+  || fail "chart $LATEST_PIN has no usable global.catalogIndex.image (got '$NEW_INDEX')"
+
 CURRENT_DIGEST=$(grep -ohE 'veecode/devportal@sha256:[0-9a-f]+' "$ROOT_DIR"/docker-compose.yml 2>/dev/null \
   | head -1 | sed 's/.*@//')
+CURRENT_INDEX=$(awk '/^[[:space:]]*CATALOG_INDEX_IMAGE:/ { sub(/^[^:]*:[[:space:]]*/, ""); print; exit }' "$INDEX_FILE")
+[ -n "$CURRENT_INDEX" ] || fail "docker-compose.yml has no CATALOG_INDEX_IMAGE line"
 
-printf '%s\n' "$LATEST_PIN" > "$PIN_FILE"
-
+# The composes are rewritten before the pin. A run that stops in between leaves the
+# old pin behind, so the next run sees a change again and redoes the same edits.
 for f in $COMPOSE_FILES; do
   [ -f "$ROOT_DIR/$f" ] || continue
-  # Only the devportal image is rewritten; postgres and friends are untouched.
-  sed -i.bak -E "s#(veecode/devportal@)sha256:[0-9a-f]+#\1${NEW_DIGEST}#g" "$ROOT_DIR/$f"
+  sed -i.bak -E \
+    -e "s#(veecode/devportal@)sha256:[0-9a-f]+#\1${NEW_DIGEST}#g" \
+    -e "s#^([[:space:]]*CATALOG_INDEX_IMAGE:[[:space:]]*).*#\1${NEW_INDEX}#" \
+    "$ROOT_DIR/$f"
   rm -f "$ROOT_DIR/$f.bak"
 done
 
+printf '%s\n' "$LATEST_PIN" > "$PIN_FILE"
+
 printf 'chart bump: %s -> %s\n' "$CURRENT_PIN" "$LATEST_PIN" >&2
 printf 'chart bump: digest %s -> %s\n' "${CURRENT_DIGEST:-none}" "$NEW_DIGEST" >&2
+printf 'chart bump: catalog index %s -> %s\n' "$CURRENT_INDEX" "$NEW_INDEX" >&2
 
 # Consumed by the workflow to build the pull request body.
 {
@@ -86,6 +127,8 @@ printf 'chart bump: digest %s -> %s\n' "${CURRENT_DIGEST:-none}" "$NEW_DIGEST" >
   printf 'new_pin=%s\n' "$LATEST_PIN"
   printf 'previous_digest=%s\n' "${CURRENT_DIGEST:-none}"
   printf 'new_digest=%s\n' "$NEW_DIGEST"
+  printf 'previous_index=%s\n' "$CURRENT_INDEX"
+  printf 'new_index=%s\n' "$NEW_INDEX"
 } > "$ROOT_DIR/.chart-bump-summary"
 
 printf 'changed\n'
