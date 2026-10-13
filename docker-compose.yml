@@ -1,6 +1,6 @@
 name: devportal-local
 
-# Image 3.0.3 (chart-v1.0.3): bakes the product face
+# Image 3.0.3 (chart-v1.0.4): bakes the product face
 # (dynamic-plugins.veecode.yaml) + installer fail-closed/backstop. Since
 # chart-v0.1.20 the operator config enters as dynamic-plugins.operator.yaml and
 # merge-dynamic-plugins.js writes the level-1 dynamic-plugins.yaml the installer
@@ -51,7 +51,7 @@ services:
         && sh install-dynamic-plugins.sh /opt/app-root/src/dynamic-plugins-root
     environment:
       MAX_ENTRY_SIZE: "40000000"
-      CATALOG_INDEX_IMAGE: quay.io/veecode/plugin-catalog-index:bs_1.52.0
+      CATALOG_INDEX_IMAGE: quay.io/veecode/plugin-catalog-index@sha256:927f6c7c3fb838ac6f654a7ddc76c2fa9e57fdc077aaef30f678f076e96810ee
       CATALOG_ENTITIES_EXTRACT_DIR: /devportal-data/catalog-entities-extract
       DEVPORTAL_DB_PATH: /devportal-data
       DEVPORTAL_FACE_FILE: /opt/app-root/src/dynamic-plugins.veecode.yaml
