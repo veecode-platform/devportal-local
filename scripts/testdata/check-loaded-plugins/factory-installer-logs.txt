@@ -1,0 +1,7 @@
+install-dynamic-plugins-1  | VEECODE prestep: WARNING — database backstage_plugin_extensions does not exist yet (database "backstage_plugin_extensions" does not exist); fresh tenant, leaving /devportal-data/extensions-install.yaml as-is
+install-dynamic-plugins-1  | VEECODE merge: /devportal-data/extensions-install.yaml does not exist yet; proceeding with the operator config alone
+install-dynamic-plugins-1  | VEECODE merge: wrote /devportal-data/dynamic-plugins.yaml: 0 operator plugin(s) + 0 marketplace plugin(s)
+install-dynamic-plugins-1  | ======= Created lock file: /opt/app-root/src/dynamic-plugins-root/install-dynamic-plugins.lock
+install-dynamic-plugins-1  | 	==> Installed oci://quay.io/veecode/veecode-platform-plugin-veecode-homepage@sha256:fe312abc6c239d770ed77d20eb63b9016e629f3a7c68d27261ec8beec4732c23!veecode-platform-plugin-veecode-homepage
+install-dynamic-plugins-1  | ======= All plugins installed successfully
+install-dynamic-plugins-1  | ======= Removed lock file: /opt/app-root/src/dynamic-plugins-root/install-dynamic-plugins.lock

@@ -3,12 +3,14 @@
 # Checks that the enabled product-face plugins are loaded by a running portal.
 #
 # The portal is reached at DEVPORTAL_URL, or http://localhost:${DEVPORTAL_PORT:-7007}.
-# By default the face and the installer logs come from a docker compose project
-# named COMPOSE_PROJECT (default devportal-local). Set these to read them
-# from anywhere else, for example a Kubernetes install:
+# By default the face, the factory list and the installer logs come from a docker
+# compose project named COMPOSE_PROJECT (default devportal-local). Set these to
+# read them from anywhere else, for example a Kubernetes install:
 #
-#   FACE_CMD  shell command that prints the product face file.
-#   LOGS_CMD  shell command that prints the dynamic-plugins installer logs.
+#   FACE_CMD     shell command that prints the product face file.
+#   FACTORY_CMD  shell command that prints the factory plugin list. It fails on an
+#                image without one, and the face is checked instead.
+#   LOGS_CMD     shell command that prints the dynamic-plugins installer logs.
 #
 # An unset or empty variable keeps the docker compose default for that source.
 # docker is required only while a default is in use.
@@ -33,12 +35,21 @@ compose_project=${COMPOSE_PROJECT:-devportal-local}
 portal_url=${DEVPORTAL_URL:-http://localhost:${DEVPORTAL_PORT:-7007}}
 portal_url=${portal_url%/}
 face_file=/opt/app-root/src/dynamic-plugins.veecode.yaml
+factory_file=/opt/app-root/src/factory-plugins.yaml
 
 read_face() {
   if [ -n "${FACE_CMD:-}" ]; then
     sh -c "$FACE_CMD"
   else
     docker compose -p "$compose_project" exec -T devportal cat "$face_file"
+  fi
+}
+
+read_factory() {
+  if [ -n "${FACTORY_CMD:-}" ]; then
+    sh -c "$FACTORY_CMD"
+  else
+    docker compose -p "$compose_project" exec -T devportal cat "$factory_file"
   fi
 }
 
@@ -50,19 +61,18 @@ read_installer_logs() {
   fi
 }
 
-if ! face_config=$(read_face 2>/dev/null); then
-  fail "could not read the product face from the running devportal service"
-fi
+if factory_config=$(read_factory 2>/dev/null); then
+  face_count=$(printf '%s\n' "$factory_config" | awk '$1 == "path:" { count++ } END { print count + 0 }')
+  enabled_refs=$(printf '%s\n' "$factory_config" | awk '
+$1 == "repository:" { repository = $2 }
+$1 == "path:" { print "oci://" repository "!" $2 }')
+else
+  if ! face_config=$(read_face 2>/dev/null); then
+    fail "could not read the product face from the running devportal service"
+  fi
 
-face_count=$(printf '%s\n' "$face_config" | awk '$1 == "-" && $2 == "package:" { count++ } END { print count + 0 }')
-case "$face_count" in
-  ''|*[!0-9]*) fail "could not count product-face entries" ;;
-esac
-if [ "$face_count" -eq 0 ]; then
-  fail "the product face declares no package entries"
-fi
-
-enabled_refs=$(printf '%s\n' "$face_config" | awk '
+  face_count=$(printf '%s\n' "$face_config" | awk '$1 == "-" && $2 == "package:" { count++ } END { print count + 0 }')
+  enabled_refs=$(printf '%s\n' "$face_config" | awk '
 function finish_entry() {
   if (in_entry && disabled != "true") print package
 }
@@ -83,6 +93,14 @@ in_entry && $1 == "disabled:" {
 END {
   finish_entry()
 }')
+fi
+case "$face_count" in
+  ''|*[!0-9]*) fail "could not count product-face entries" ;;
+esac
+if [ "$face_count" -eq 0 ]; then
+  fail "the product face declares no package entries"
+fi
+
 enabled_count=$(printf '%s\n' "$enabled_refs" | awk 'NF { count++ } END { print count + 0 }')
 case "$enabled_count" in
   ''|*[!0-9]*) fail "could not count enabled product-face entries" ;;
