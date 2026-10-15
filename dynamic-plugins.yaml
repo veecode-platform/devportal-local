@@ -11,16 +11,14 @@
 # LEVEL-1 entry, no longer an include here) into the level-1 dynamic-plugins.yaml
 # the installer actually reads.
 #
-# Includes, in order:
-# - dynamic-plugins.default.yaml — relative include; the installer swaps in the
+# Include:
+# - dynamic-plugins.default.yaml: relative include; the installer swaps in the
 #   catalog-index DPDY (CATALOG_INDEX_IMAGE) when an include's basename matches
-#   this exact literal filename.
-# - dynamic-plugins.veecode.yaml — the VeeCode product face (Home, header,
-#   TechDocs, Notifications, Tech Radar, Marketplace, theme — 20 plugins),
-#   baked into the devportal-core image (OD1 phase A), fail-closed if missing.
+#   this exact literal filename. The default plugins come enabled from that
+#   index; the image keeps only their names in
+#   /opt/app-root/src/factory-plugins.yaml.
 # `plugins:` stays purely additive customer input, empty by default. See
 # devportal-chart/docs/product-face-overrides.md.
 includes:
 - dynamic-plugins.default.yaml
-- /opt/app-root/src/dynamic-plugins.veecode.yaml
 plugins: []
