@@ -23,7 +23,7 @@ fail() {
 }
 
 for command_name in awk curl docker grep python3; do
-  if [ "$command_name" = docker ] && [ -n "${FACE_CMD:-}" ] && [ -n "${FACTORY_CMD:-}" ] && [ -n "${LOGS_CMD:-}" ]; then
+  if [ "$command_name" = docker ] && [ -n "${FACE_CMD:-}" ] && [ -n "${LOGS_CMD:-}" ]; then
     continue
   fi
   if ! command -v "$command_name" >/dev/null 2>&1; then
