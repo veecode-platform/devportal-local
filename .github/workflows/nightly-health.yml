@@ -3,10 +3,11 @@ name: Nightly health
 # The runner is where proofs 2 and 4 happen, so "the stack still boots" has to be
 # a fact we are told, not one we discover the next time someone needs it. This
 # brings the default stack up nightly on the pinned image, waits for the portal
-# to serve, and checks enabled face plugins against the API and installer logs.
+# to serve, and checks the default plugins against the API and installer logs.
 #
-# It boots the base compose only. The check covers the product face baked into
-# the pinned image; no workspace plugin is mounted.
+# It boots the base compose only. The check covers the default plugins that the
+# pinned chart enables from the catalog index, named in the image's factory list;
+# no workspace plugin is mounted.
 
 on:
   schedule:
