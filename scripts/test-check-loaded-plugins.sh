@@ -1,7 +1,8 @@
 #!/bin/sh
-# check-loaded-plugins.sh reads the product face and the installer logs through
-# FACE_CMD and LOGS_CMD, and the portal over HTTP. This runs it against fixture
-# files and a stub portal API, and once against a stub docker for the defaults.
+# check-loaded-plugins.sh reads the product face, the factory list and the
+# installer logs through FACE_CMD, FACTORY_CMD and LOGS_CMD, and the portal over
+# HTTP. This runs it against fixture files and a stub portal API, and once against
+# a stub docker for the defaults.
 set -eu
 
 ROOT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd -P)
@@ -81,6 +82,7 @@ cat > "$WORK_DIR/bin/docker" <<EOS
 #!/bin/sh
 printf '%s\n' "\$*" >> "$WORK_DIR/docker-calls"
 case "\$*" in
+  *factory-plugins.yaml*) exit 1 ;;
   *' exec '*) cat "$DATA_DIR/face.yaml" ;;
   *' logs '*) cat "$DATA_DIR/installer-logs.txt" ;;
 esac
@@ -90,9 +92,11 @@ PATH="$WORK_DIR/bin:$PATH"
 
 FACE_FIXTURE=$DATA_DIR/face.yaml
 LOGS_FIXTURE=$WORK_DIR/installer.log
-export FACE_FIXTURE LOGS_FIXTURE
+FACTORY_FIXTURE=$WORK_DIR/factory-plugins.yaml
+export FACE_FIXTURE LOGS_FIXTURE FACTORY_FIXTURE
 export FACE_CMD="cat \"\$FACE_FIXTURE\""
 export LOGS_CMD="cat \"\$LOGS_FIXTURE\""
+export FACTORY_CMD="cat \"\$FACTORY_FIXTURE\""
 
 # Runs the script and sets status, out (stdout) and err (stderr).
 run_check() {
@@ -143,15 +147,37 @@ expect_line 'Cannot find module in the installer logs' \
   "loaded plugins check: FAIL (installer logs contain 'Cannot find module')" "$err"
 printf 'loaded plugins check test: Cannot find module in the installer logs: FAIL as expected\n'
 
-unset FACE_CMD LOGS_CMD
+cp "$DATA_DIR/factory-plugins.yaml" "$WORK_DIR/factory-plugins.yaml"
+cp "$DATA_DIR/factory-loaded-plugins.json" "$WORK_DIR/loaded.json"
+cp "$DATA_DIR/factory-installer-logs.txt" "$WORK_DIR/installer.log"
+run_check
+expect_status 'factory list loaded' 0
+expected='loaded plugins check: product-face entries: 18 (enabled: 18, disabled: 0)
+loaded plugins check: API plugin records: 18
+loaded plugins check: enabled face entries found in API: 18 of 18
+loaded plugins check: PASS'
+[ "$out" = "$expected" ] || fail "factory list loaded: unexpected output: $out"
+[ -z "$err" ] || fail "factory list loaded: unexpected stderr: $err"
+printf 'loaded plugins check test: factory list loaded: PASS\n'
+
+sed 's/plugin-veecode-homepage-dynamic/plugin-veecode-homepage-renamed/' "$DATA_DIR/factory-loaded-plugins.json" > "$WORK_DIR/loaded.json"
+run_check
+expect_status 'factory plugin missing from the API' 1
+expect_line 'factory plugin missing from the API' \
+  'loaded plugins check: FAIL (enabled product-face plugins missing from API: veecode-platform-plugin-veecode-homepage)' "$err"
+printf 'loaded plugins check test: factory plugin missing from the API: FAIL as expected\n'
+
+cp "$DATA_DIR/loaded-plugins.json" "$WORK_DIR/loaded.json"
+unset FACE_CMD LOGS_CMD FACTORY_CMD
 export COMPOSE_PROJECT=test-project
 run_check
 expect_status 'docker compose defaults' 0
 expect_line 'docker compose defaults' 'loaded plugins check: PASS' "$out"
 calls=$(cat "$WORK_DIR/docker-calls")
-[ "$calls" = 'compose -p test-project exec -T devportal cat /opt/app-root/src/dynamic-plugins.veecode.yaml
+[ "$calls" = 'compose -p test-project exec -T devportal cat /opt/app-root/src/factory-plugins.yaml
+compose -p test-project exec -T devportal cat /opt/app-root/src/dynamic-plugins.veecode.yaml
 compose -p test-project logs --no-color install-dynamic-plugins' ] \
   || fail "docker compose defaults: unexpected docker calls: $calls"
 printf 'loaded plugins check test: docker compose defaults: PASS\n'
 
-printf 'loaded plugins check test: PASS (4 cases)\n'
+printf 'loaded plugins check test: PASS (6 cases)\n'
