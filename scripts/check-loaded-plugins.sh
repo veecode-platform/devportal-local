@@ -62,9 +62,15 @@ read_installer_logs() {
 }
 
 if factory_config=$(read_factory 2>/dev/null); then
-  face_count=$(printf '%s\n' "$factory_config" | awk '$1 == "path:" { count++ } END { print count + 0 }')
+  # The installer writes each factory entry as "- repository:" followed by an
+  # indented "path:", so a key can sit on the dash line or on its own line.
+  face_count=$(printf '%s\n' "$factory_config" | awk '
+$1 == "path:" || ($1 == "-" && $2 == "path:") { count++ }
+END { print count + 0 }')
   enabled_refs=$(printf '%s\n' "$factory_config" | awk '
-$1 == "repository:" { repository = $2 }
+$1 == "-" && $2 == "repository:" { repository = $3; next }
+$1 == "repository:" { repository = $2; next }
+$1 == "-" && $2 == "path:" { print "oci://" repository "!" $3; next }
 $1 == "path:" { print "oci://" repository "!" $2 }')
 else
   if ! face_config=$(read_face 2>/dev/null); then
