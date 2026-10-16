@@ -1,6 +1,6 @@
 factoryPlugins:
-  - repository: quay.io/veecode/veecode-platform-plugin-veecode-homepage
-    path: veecode-platform-plugin-veecode-homepage
+  - path: veecode-platform-plugin-veecode-homepage
+    repository: quay.io/veecode/veecode-platform-plugin-veecode-homepage
   - repository: quay.io/veecode/red-hat-developer-hub-backstage-plugin-global-header
     path: red-hat-developer-hub-backstage-plugin-global-header
   - repository: quay.io/veecode/backstage-community-plugin-rbac
