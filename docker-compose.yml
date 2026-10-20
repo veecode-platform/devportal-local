@@ -1,6 +1,6 @@
 name: devportal-local
 
-# Image 3.1.0 (chart-v1.1.0): the default plugins come enabled from the
+# Image 3.1.0 (chart-v1.1.1): the default plugins come enabled from the
 # catalog index (CATALOG_INDEX_IMAGE); the image keeps only their names in
 # /opt/app-root/src/factory-plugins.yaml. Since
 # chart-v0.1.20 the operator config enters as dynamic-plugins.operator.yaml and
