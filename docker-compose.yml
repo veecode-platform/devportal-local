@@ -1,6 +1,6 @@
 name: devportal-local
 
-# Image 3.1.1 (chart-v1.1.2): the default plugins come enabled from the
+# Image 3.1.2 (chart-v1.1.3): the default plugins come enabled from the
 # catalog index (CATALOG_INDEX_IMAGE); the image keeps only their names in
 # /opt/app-root/src/factory-plugins.yaml. Since
 # chart-v0.1.20 the operator config enters as dynamic-plugins.operator.yaml and
@@ -24,8 +24,8 @@ services:
   # Docker creates named volumes as root-owned when their mount path is absent
   # from the image. The installer runs as UID 1001, so fix ownership first.
   fix-volume-ownership:
-    # DevPortal 3.1.1; pinned by digest for reproducible evaluation.
-    image: ${DEVPORTAL_IMAGE:-docker.io/veecode/devportal@sha256:726cc70543dd5a122e4ffcbc7fe9734f9b25366e39b775cd4a86e9c68f7c6f26}
+    # DevPortal 3.1.2; pinned by digest for reproducible evaluation.
+    image: ${DEVPORTAL_IMAGE:-docker.io/veecode/devportal@sha256:869b8f3eb9f543dd87b3dbd474073c1d0cfbd6816121cf8dd03058bf498fa691}
     user: "0"
     entrypoint: ["/bin/sh", "-c", "chown -R 1001:0 /opt/app-root/src/dynamic-plugins-root /devportal-data"]
     volumes:
@@ -33,8 +33,8 @@ services:
       - devportal-data:/devportal-data
 
   install-dynamic-plugins:
-    # DevPortal 3.1.1; pinned by digest for reproducible evaluation.
-    image: ${DEVPORTAL_IMAGE:-docker.io/veecode/devportal@sha256:726cc70543dd5a122e4ffcbc7fe9734f9b25366e39b775cd4a86e9c68f7c6f26}
+    # DevPortal 3.1.2; pinned by digest for reproducible evaluation.
+    image: ${DEVPORTAL_IMAGE:-docker.io/veecode/devportal@sha256:869b8f3eb9f543dd87b3dbd474073c1d0cfbd6816121cf8dd03058bf498fa691}
     depends_on:
       fix-volume-ownership:
         condition: service_completed_successfully
@@ -69,8 +69,8 @@ services:
       - ./dynamic-plugins.yaml:/opt/app-root/src/dynamic-plugins.operator.yaml:ro
 
   devportal:
-    # DevPortal 3.1.1; pinned by digest for reproducible evaluation.
-    image: ${DEVPORTAL_IMAGE:-docker.io/veecode/devportal@sha256:726cc70543dd5a122e4ffcbc7fe9734f9b25366e39b775cd4a86e9c68f7c6f26}
+    # DevPortal 3.1.2; pinned by digest for reproducible evaluation.
+    image: ${DEVPORTAL_IMAGE:-docker.io/veecode/devportal@sha256:869b8f3eb9f543dd87b3dbd474073c1d0cfbd6816121cf8dd03058bf498fa691}
     depends_on:
       install-dynamic-plugins:
         condition: service_completed_successfully
